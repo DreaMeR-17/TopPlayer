@@ -6,11 +6,11 @@ namespace PlayerRanking
 {
     internal class Program
     {
-        private const string COMMAND_SHOW_TOP_LEVEL = "1";
-        private const string COMMAND_SHOW_TOP_STRENGTH = "2";
-        private const string COMMAND_EXIT = "0";
+        private const string CommandShowTopLevel = "1";
+        private const string CommandShowTopStrength = "2";
+        private const string CommandExit = "0";
 
-        private const int TOP_PLAYERS_COUNT = 3;
+        private const int TopPlayersCount = 3;
 
         static void Main(string[] args)
         {
@@ -38,22 +38,22 @@ namespace PlayerRanking
                 ShowPlayers(players);
 
                 Console.WriteLine("\nВыберите действие:");
-                Console.WriteLine($"{COMMAND_SHOW_TOP_LEVEL} - Показать топ-{TOP_PLAYERS_COUNT} игроков по уровню");
-                Console.WriteLine($"{COMMAND_SHOW_TOP_STRENGTH} - Показать топ-{TOP_PLAYERS_COUNT} игроков по силе");
-                Console.WriteLine($"{COMMAND_EXIT} - Выйти из программы");
+                Console.WriteLine($"{CommandShowTopLevel} - Показать топ-{TopPlayersCount} игроков по уровню");
+                Console.WriteLine($"{CommandShowTopStrength} - Показать топ-{TopPlayersCount} игроков по силе");
+                Console.WriteLine($"{CommandExit} - Выйти из программы");
                 Console.Write("Введите команду: ");
 
                 string input = Console.ReadLine();
 
                 switch (input)
                 {
-                    case COMMAND_SHOW_TOP_LEVEL:
-                        ShowTopPlayers(players, sortByLevel: true);
+                    case CommandShowTopLevel:
+                        ShowTopPlayers(players, p => p.Level, p => p.Strength, "Топ игроков по уровню:");
                         break;
-                    case COMMAND_SHOW_TOP_STRENGTH:
-                        ShowTopPlayers(players, sortByLevel: false);
+                    case CommandShowTopStrength:
+                        ShowTopPlayers(players, p => p.Strength, p => p.Level, "Топ игроков по силе:");
                         break;
-                    case COMMAND_EXIT:
+                    case CommandExit:
                         Console.WriteLine("Выход из программы...");
                         isWork = false;
                         break;
@@ -70,15 +70,16 @@ namespace PlayerRanking
             Console.WriteLine(player);
         }
 
-        private static void ShowTopPlayers(List<Player> players, bool sortByLevel)
+        private static void ShowTopPlayers(List<Player> players, Func<Player, int> primarySort, Func<Player, int> secondarySort, string title)
         {
             Console.Clear();
 
-            var topPlayers = sortByLevel
-            ? players.OrderByDescending(player => player.Level).Take(TOP_PLAYERS_COUNT)
-            : players.OrderByDescending(player => player.Strength).Take(TOP_PLAYERS_COUNT);
+            var topPlayers = players
+                .OrderByDescending(primarySort)
+                .ThenByDescending(secondarySort)
+                .Take(TopPlayersCount);
 
-            Console.WriteLine(sortByLevel ? $"Топ-{TOP_PLAYERS_COUNT} игроков по уровню:" : $"Топ-{TOP_PLAYERS_COUNT} игроков по силе:");
+            Console.WriteLine(title);
             ShowPlayers(topPlayers);
 
             Console.WriteLine("\nНажмите любую клавишу, чтобы вернуться в меню...");
@@ -88,24 +89,20 @@ namespace PlayerRanking
 
     class Player
     {
-        private string _name;
-        private int _level;
-        private int _strength;
-
         public Player(string name)
         {
-            _name = name;
-            _level = UserUtils.GetRandomNumber(15, 36);
-            _strength = UserUtils.GetRandomNumber(150, 251);
+            Name = name;
+            Level = UserUtils.GetRandomNumber(15, 36);
+            Strength = UserUtils.GetRandomNumber(150, 251);
         }
 
-        public string Name => _name;
-        public int Level => _level;
-        public int Strength => _strength;
+        public string Name { get; }
+        public int Level { get; }
+        public int Strength { get; }
 
         public override string ToString()
         {
-            return $"Имя: {_name}, Уровень: {_level}, Сила: {_strength}";
+            return $"Имя: {Name}, Уровень: {Level}, Сила: {Strength}";
         }
     }
 
