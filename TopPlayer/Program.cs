@@ -61,7 +61,7 @@ namespace TopPlayer
         private static void ShowPlayers(IEnumerable<Player> players)
         {
             foreach (var player in players)
-                Console.WriteLine(player);
+            Console.WriteLine(player);
         }
 
         private static void ShowTopPlayers(List<Player> players, bool sortByLevel)
@@ -69,8 +69,8 @@ namespace TopPlayer
             Console.Clear(); 
 
             var topPlayers = sortByLevel
-                ? players.OrderByDescending(player => player.Level).Take(3)
-                : players.OrderByDescending(player => player.Strength).Take(3);
+            ? players.OrderByDescending(player => player.Level).Take(3)
+            : players.OrderByDescending(player => player.Strength).Take(3);
 
             Console.WriteLine(sortByLevel ? "Топ-3 игроков по уровню:" : "Топ-3 игроков по силе:");
             ShowPlayers(topPlayers);
@@ -89,8 +89,8 @@ namespace TopPlayer
         public Player(string name)
         {
             _name = name;
-            _level = UserUtils.GetRandomNumber(15, 36); // Уровень от 15 до 35
-            _strength = UserUtils.GetRandomNumber(150, 251); // Сила от 150 до 250
+            _level = UserUtils.GetRandomNumber(15, 36); 
+            _strength = UserUtils.GetRandomNumber(150, 251); 
         }
 
         public string Name => _name;
