@@ -48,10 +48,10 @@ namespace PlayerRanking
                 switch (input)
                 {
                     case CommandShowTopLevel:
-                        ShowTopPlayers(players, p => p.Level, p => p.Strength, "Топ игроков по уровню:");
+                        ShowTopPlayers(players, player => player.Level, "Топ игроков по уровню:", "Уровень");
                         break;
                     case CommandShowTopStrength:
-                        ShowTopPlayers(players, p => p.Strength, p => p.Level, "Топ игроков по силе:");
+                        ShowTopPlayers(players, player => player.Strength, "Топ игроков по силе:", "Сила");
                         break;
                     case CommandExit:
                         Console.WriteLine("Выход из программы...");
@@ -70,17 +70,26 @@ namespace PlayerRanking
             Console.WriteLine(player);
         }
 
-        private static void ShowTopPlayers(List<Player> players, Func<Player, int> primarySort, Func<Player, int> secondarySort, string title)
+        private static void ShowTopPlayers(List<Player> players, Func<Player, int> primarySort, string title, string parameterName)
         {
             Console.Clear();
 
             var topPlayers = players
-                .OrderByDescending(primarySort)
-                .ThenByDescending(secondarySort)
-                .Take(TopPlayersCount);
+            .OrderByDescending(primarySort) 
+            .Take(TopPlayersCount);
 
             Console.WriteLine(title);
-            ShowPlayers(topPlayers);
+            foreach (var player in topPlayers)
+            {
+                if (parameterName == "Уровень")
+                {
+                    Console.WriteLine($"Имя: {player.Name}, {parameterName}: {player.Level}");
+                }
+                else if (parameterName == "Сила")
+                {
+                    Console.WriteLine($"Имя: {player.Name}, {parameterName}: {player.Strength}");
+                }
+            }
 
             Console.WriteLine("\nНажмите любую клавишу, чтобы вернуться в меню...");
             Console.ReadKey();
