@@ -43,15 +43,17 @@ namespace PlayerRanking
                 Console.WriteLine($"{CommandExit} - Выйти из программы");
                 Console.Write("Введите команду: ");
 
+                string level = "Уровень";
+                string strenght = "Сила";
                 string input = Console.ReadLine();
 
                 switch (input)
                 {
                     case CommandShowTopLevel:
-                        ShowTopPlayers(players, player => player.Level, "Топ игроков по уровню:", "Уровень");
+                        ShowTopPlayers(players, "Топ игроков по уровню:", level, player => player.Level);
                         break;
                     case CommandShowTopStrength:
-                        ShowTopPlayers(players, player => player.Strength, "Топ игроков по силе:", "Сила");
+                        ShowTopPlayers(players, "Топ игроков по силе:", strenght, player => player.Strength);
                         break;
                     case CommandExit:
                         Console.WriteLine("Выход из программы...");
@@ -70,34 +72,40 @@ namespace PlayerRanking
             Console.WriteLine(player);
         }
 
-        private static void ShowTopPlayers(List<Player> players, Func<Player, int> primarySort, string title, string parameterName)
+        private static void ShowTopPlayers(List<Player> players, string title, string parameterName, Func<Player, int> sortParameter)
         {
             Console.Clear();
 
             var topPlayers = players
-            .OrderByDescending(primarySort) 
-            .Take(TopPlayersCount);
+                .OrderByDescending(sortParameter)
+                .Take(TopPlayersCount);
 
             Console.WriteLine(title);
             foreach (var player in topPlayers)
             {
-                if (parameterName == "Уровень")
-                {
-                    Console.WriteLine($"Имя: {player.Name}, {parameterName}: {player.Level}");
-                }
-                else if (parameterName == "Сила")
-                {
-                    Console.WriteLine($"Имя: {player.Name}, {parameterName}: {player.Strength}");
-                }
+                PrintPlayerInfo(player, parameterName);
             }
 
             Console.WriteLine("\nНажмите любую клавишу, чтобы вернуться в меню...");
             Console.ReadKey();
         }
+
+        private static void PrintPlayerInfo(Player player, string parameterName)
+        {
+            string level = "Уровень";
+            string name = "Имя";
+
+            int value = parameterName == level ? player.Level : player.Strength;
+            Console.WriteLine($"{name}: {player.Name}, {parameterName}: {value}");
+        }
     }
 
     class Player
     {
+        string level = "Уровень";
+        string strenght = "Сила";
+        string name = "Имя";
+
         public Player(string name)
         {
             Name = name;
@@ -111,7 +119,7 @@ namespace PlayerRanking
 
         public override string ToString()
         {
-            return $"Имя: {Name}, Уровень: {Level}, Сила: {Strength}";
+            return $"{name}: {Name}, {level}: {Level}, {strenght}: {Strength}";
         }
     }
 
