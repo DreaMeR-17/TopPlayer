@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TopPlayer
+namespace PlayerRanking
 {
     internal class Program
     {
+        private const string COMMAND_SHOW_TOP_LEVEL = "1";
+        private const string COMMAND_SHOW_TOP_STRENGTH = "2";
+        private const string COMMAND_EXIT = "0";
+
+        private const int TOP_PLAYERS_COUNT = 3;
+
         static void Main(string[] args)
         {
             List<Player> players = new List<Player>
@@ -26,31 +32,31 @@ namespace TopPlayer
 
             while (isWork)
             {
-                Console.Clear(); 
+                Console.Clear();
 
                 Console.WriteLine("Список всех игроков:");
                 ShowPlayers(players);
 
                 Console.WriteLine("\nВыберите действие:");
-                Console.WriteLine("1 - Показать топ-3 игроков по уровню");
-                Console.WriteLine("2 - Показать топ-3 игроков по силе");
-                Console.WriteLine("0 - Выйти из программы");
+                Console.WriteLine($"{COMMAND_SHOW_TOP_LEVEL} - Показать топ-{TOP_PLAYERS_COUNT} игроков по уровню");
+                Console.WriteLine($"{COMMAND_SHOW_TOP_STRENGTH} - Показать топ-{TOP_PLAYERS_COUNT} игроков по силе");
+                Console.WriteLine($"{COMMAND_EXIT} - Выйти из программы");
                 Console.Write("Введите команду: ");
 
                 string input = Console.ReadLine();
 
                 switch (input)
                 {
-                    case "1":
+                    case COMMAND_SHOW_TOP_LEVEL:
                         ShowTopPlayers(players, sortByLevel: true);
                         break;
-                    case "2":
+                    case COMMAND_SHOW_TOP_STRENGTH:
                         ShowTopPlayers(players, sortByLevel: false);
                         break;
-                    case "0":
+                    case COMMAND_EXIT:
                         Console.WriteLine("Выход из программы...");
                         isWork = false;
-                        return;
+                        break;
                     default:
                         Console.WriteLine("Неверная команда! Попробуйте снова.");
                         break;
@@ -66,13 +72,13 @@ namespace TopPlayer
 
         private static void ShowTopPlayers(List<Player> players, bool sortByLevel)
         {
-            Console.Clear(); 
+            Console.Clear();
 
             var topPlayers = sortByLevel
-            ? players.OrderByDescending(player => player.Level).Take(3)
-            : players.OrderByDescending(player => player.Strength).Take(3);
+            ? players.OrderByDescending(player => player.Level).Take(TOP_PLAYERS_COUNT)
+            : players.OrderByDescending(player => player.Strength).Take(TOP_PLAYERS_COUNT);
 
-            Console.WriteLine(sortByLevel ? "Топ-3 игроков по уровню:" : "Топ-3 игроков по силе:");
+            Console.WriteLine(sortByLevel ? $"Топ-{TOP_PLAYERS_COUNT} игроков по уровню:" : $"Топ-{TOP_PLAYERS_COUNT} игроков по силе:");
             ShowPlayers(topPlayers);
 
             Console.WriteLine("\nНажмите любую клавишу, чтобы вернуться в меню...");
@@ -89,8 +95,8 @@ namespace TopPlayer
         public Player(string name)
         {
             _name = name;
-            _level = UserUtils.GetRandomNumber(15, 36); 
-            _strength = UserUtils.GetRandomNumber(150, 251); 
+            _level = UserUtils.GetRandomNumber(15, 36);
+            _strength = UserUtils.GetRandomNumber(150, 251);
         }
 
         public string Name => _name;
