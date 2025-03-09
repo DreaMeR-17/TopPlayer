@@ -50,12 +50,12 @@ namespace PlayerRanking
                         break;
 
                     case CommandExit:
-                        Console.WriteLine("🚪 Выход из программы...");
+                        Console.WriteLine("Выход из программы...");
                         isRunning = false;
                         break;
 
                     default:
-                        Console.WriteLine("❌ Неверная команда! Попробуйте снова.");
+                        Console.WriteLine("Неверная команда! Попробуйте снова.");
                         break;
                 }
             }
