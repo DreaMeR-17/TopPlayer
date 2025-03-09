@@ -6,130 +6,156 @@ namespace PlayerRanking
 {
     internal class Program
     {
+        private static void Main()
+        {
+            ProgramRunner.Run();
+        }
+    }
+
+    class ProgramRunner
+    {
         private const string CommandShowTopLevel = "1";
         private const string CommandShowTopStrength = "2";
         private const string CommandExit = "0";
 
-        private const int TopPlayersCount = 3;
+        private static readonly Database s_database = new Database();
 
-        static void Main(string[] args)
+        public static void Run()
         {
-            List<Player> players = new List<Player>
-            {
-                new Player("Jinx"),
-                new Player("Vi"),
-                new Player("Charlie"),
-                new Player("David"),
-                new Player("Eve"),
-                new Player("Silko"),
-                new Player("Grace"),
-                new Player("Hank"),
-                new Player("Ivy"),
-                new Player("Jack")
-            };
+            bool isRunning = true;
 
-            bool isWork = true;
-
-            while (isWork)
+            while (isRunning)
             {
                 Console.Clear();
 
                 Console.WriteLine("Список всех игроков:");
-                ShowPlayers(players);
+                s_database.ShowAllPlayers();
 
                 Console.WriteLine("\nВыберите действие:");
-                Console.WriteLine($"{CommandShowTopLevel} - Показать топ-{TopPlayersCount} игроков по уровню");
-                Console.WriteLine($"{CommandShowTopStrength} - Показать топ-{TopPlayersCount} игроков по силе");
+                Console.WriteLine($"{CommandShowTopLevel} - Показать топ-{Database.TopPlayersCount} игроков по уровню");
+                Console.WriteLine($"{CommandShowTopStrength} - Показать топ-{Database.TopPlayersCount} игроков по силе");
                 Console.WriteLine($"{CommandExit} - Выйти из программы");
                 Console.Write("Введите команду: ");
 
-                string level = "Уровень";
-                string strenght = "Сила";
                 string input = Console.ReadLine();
 
                 switch (input)
                 {
                     case CommandShowTopLevel:
-                        ShowTopPlayers(players, "Топ игроков по уровню:", level, player => player.Level);
+                        s_database.ShowTopPlayersByLevel();
                         break;
+
                     case CommandShowTopStrength:
-                        ShowTopPlayers(players, "Топ игроков по силе:", strenght, player => player.Strength);
+                        s_database.ShowTopPlayersByStrength();
                         break;
+
                     case CommandExit:
-                        Console.WriteLine("Выход из программы...");
-                        isWork = false;
+                        Console.WriteLine("🚪 Выход из программы...");
+                        isRunning = false;
                         break;
+
                     default:
-                        Console.WriteLine("Неверная команда! Попробуйте снова.");
+                        Console.WriteLine("❌ Неверная команда! Попробуйте снова.");
                         break;
                 }
             }
         }
+    }
 
-        private static void ShowPlayers(IEnumerable<Player> players)
+    class Database
+    {
+        public const int TopPlayersCount = 3;
+        private const int MinLevel = 15;
+        private const int MaxLevel = 35;
+        private const int MinStrength = 150;
+        private const int MaxStrength = 250;
+
+        private readonly List<Player> _players;
+
+        public Database()
         {
-            foreach (var player in players)
-            Console.WriteLine(player);
+            _players = GeneratePlayers();
         }
 
-        private static void ShowTopPlayers(List<Player> players, string title, string parameterName, Func<Player, int> sortParameter)
+        public void ShowAllPlayers()
+        {
+            foreach (Player player in _players)
+            {
+                Console.WriteLine(player);
+            }
+        }
+
+        public void ShowTopPlayersByLevel()
+        {
+            ShowTopPlayers("Топ игроков по уровню:", "Уровень", _players.OrderByDescending(player => player.Level).Take(TopPlayersCount).ToList());
+        }
+
+        public void ShowTopPlayersByStrength()
+        {
+            ShowTopPlayers("Топ игроков по силе:", "Сила", _players.OrderByDescending(player => player.Strength).Take(TopPlayersCount).ToList());
+        }
+
+        private static void ShowTopPlayers(string title, string parameterName, List<Player> topPlayers)
         {
             Console.Clear();
-
-            var topPlayers = players
-                .OrderByDescending(sortParameter)
-                .Take(TopPlayersCount);
-
             Console.WriteLine(title);
-            foreach (var player in topPlayers)
+
+            foreach (Player player in topPlayers)
             {
-                PrintPlayerInfo(player, parameterName);
+                Console.WriteLine($"Имя: {player.Name}, {parameterName}: {player.GetParameterValue(parameterName)}");
             }
 
             Console.WriteLine("\nНажмите любую клавишу, чтобы вернуться в меню...");
             Console.ReadKey();
         }
 
-        private static void PrintPlayerInfo(Player player, string parameterName)
+        private static List<Player> GeneratePlayers()
         {
-            string level = "Уровень";
-            string name = "Имя";
+            string[] names = { "Jinx", "Vi", "Charlie", "David", "Eve", "Silko", "Grace", "Hank", "Ivy", "Jack" };
+            List<Player> players = new List<Player>();
 
-            int value = parameterName == level ? player.Level : player.Strength;
-            Console.WriteLine($"{name}: {player.Name}, {parameterName}: {value}");
+            foreach (string name in names)
+            {
+                int level = UserUtils.GetRandomNumber(MinLevel, MaxLevel + 1);
+                int strength = UserUtils.GetRandomNumber(MinStrength, MaxStrength + 1);
+                players.Add(new Player(name, level, strength));
+            }
+
+            return players;
         }
     }
 
     class Player
     {
-        string level = "Уровень";
-        string strenght = "Сила";
-        string name = "Имя";
-
-        public Player(string name)
+        public Player(string name, int level, int strength)
         {
             Name = name;
-            Level = UserUtils.GetRandomNumber(15, 36);
-            Strength = UserUtils.GetRandomNumber(150, 251);
+            Level = level;
+            Strength = strength;
         }
 
         public string Name { get; }
         public int Level { get; }
         public int Strength { get; }
 
+        public int GetParameterValue(string parameterName)
+        {
+            return parameterName == "Уровень" ? Level : Strength;
+        }
+
         public override string ToString()
         {
-            return $"{name}: {Name}, {level}: {Level}, {strenght}: {Strength}";
+            return $"Имя: {Name}, Уровень: {Level}, Сила: {Strength}";
         }
     }
 
-    static class UserUtils
+    class UserUtils
     {
-        private static Random _random = new Random();
+        private static readonly Random s_random = new Random();
 
         public static int GetRandomNumber(int min, int max)
         {
-            return _random.Next(min, max);
+            return s_random.Next(min, max);
         }
     }
 }
